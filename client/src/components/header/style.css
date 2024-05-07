@@ -1,0 +1,40 @@
+.header{
+    padding: 15px 25px 5px 5px;
+    border-bottom: 2px solid rgb(237, 237, 237);
+    background-color: rgb(237, 237, 237);
+    display: flex;
+    justify-content: space-between;
+}
+
+.logo-con{
+    display: flex;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.logo {
+    width: 50px;
+}
+
+.brand-name{
+    font-size: 30px;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.nav-con{
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-item{
+    cursor: pointer;
+    padding: 0px 5px;
+}
+
+.nav-item:hover{
+    /* background-color: #213547; */
+    /* border-radius: 4px; */
+    /* color: rgb(237,237,237); */
+    border-bottom: 2px #213547 solid;
+}
