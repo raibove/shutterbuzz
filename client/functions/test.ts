@@ -1,20 +1,29 @@
 import { getStore } from "@netlify/blobs";
-import type { Context } from "@netlify/functions";
 
-export default async (req: Request, context: Context) => {
-  const construction = getStore("construction");
-  await construction.set("nails", "For general carpentry");
+export async function handler(req, context) {
+  // Parse the incoming request body
+  const body = JSON.parse(req.body);
+  // Extract the file data and description from the request body
+  const fileData = body.fileData; // Assuming this is the file data you're sending from the frontend
+  const description = body.description;
 
-  const beauty = getStore("beauty");
-  await beauty.set("nails", "For formal events", {
-    metadata: { material: "acrylic", sale: true },
-  });
-  return new Response("Nail blobs set for Construction and Beauty stores");
+  // Get the store where you want to store the file
+  const store = getStore("your-store-name"); // Replace "your-store-name" with the name of your store
 
-  // const resp = await beauty.getWithMetadata("nails");
-  // if(resp){
-  //   const { data, etag, metadata } = resp;
-  //   return Response.json({ data, etag, metadata });
-  // }
-  // return Response.json('failed to load')
-};
+  try {
+    // Set the file data in the store
+    await store.set("file", fileData, { metadata: { description } });
+
+    // Respond with a success message
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: "File uploaded successfully" })
+    };
+  } catch (error) {
+    // If there's an error, respond with an error message
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: "Error uploading file" })
+    };
+  }
+}
