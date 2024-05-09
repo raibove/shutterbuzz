@@ -4,7 +4,8 @@ export async function handler(req, context) {
   // Parse the incoming request body
   const body = JSON.parse(req.body);
   // Extract the file data and description from the request body
-  const fileData = body.fileData; // Assuming this is the file data you're sending from the frontend
+  console.log(body)
+  const fileData = body.file; // Assuming this is the file data you're sending from the frontend
   const description = body.description;
 
   // Get the store where you want to store the file
@@ -12,7 +13,9 @@ export async function handler(req, context) {
 
   try {
     // Set the file data in the store
-    await store.set("file", fileData, { metadata: { description } });
+    await store.setJSON("file1", {
+      file: fileData
+    }, { metadata: { description } });
 
     // Respond with a success message
     return {
