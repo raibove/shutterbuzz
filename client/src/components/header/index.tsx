@@ -1,23 +1,14 @@
 import Logo from '/logo.svg';
 import './style.css'
-import { useEffect } from 'react';
 import * as netlifyIdentity from 'netlify-identity-widget'
 
-const Header = () => {
-    useEffect(()=>{
-        const user = window.localStorage.getItem("gotrue.user");
-        // netlifyIdentity.init({
-        //     container: '#o'
-        // })
-        // netlifyIdentity.on("init", user => {
-        //     console.log( user );
-        //   });
-        // const user = netlifyIdentity.currentUser();
-        console.log(user);
-        // netlifyIdentity.init()
-        // netlifyIdentity.open('signup')
-    }, [])
 
+interface Props {
+    isAuthenticated: null | string;
+    setIsAuthenticated: React.Dispatch<React.SetStateAction<string | null>>
+}
+
+const Header = ({ isAuthenticated, setIsAuthenticated }: Props) => {
     return (
         <div className='header'>
             <div className='logo-con'>
@@ -25,9 +16,25 @@ const Header = () => {
             </div>
             <div className='nav-con'>
                 <span className='nav-item'>About</span>
-                <span className='nav-item' onClick={()=>{
-        netlifyIdentity.open('signup')
-                }}>Profile</span>
+                {isAuthenticated ?
+                    <span className='nav-item'
+                        onClick={() => {
+                            netlifyIdentity.logout();
+                            setIsAuthenticated(null)
+                        }}>Logout</span>
+                    :
+                    <span className='nav-item'
+                        onClick={() => {
+                            netlifyIdentity.init()
+                            netlifyIdentity.open('signup')
+                            netlifyIdentity.on('login', user => {
+                                console.log('login', user.email)
+                                netlifyIdentity.off('login');
+                                setIsAuthenticated(user.email)
+                                netlifyIdentity.close();
+                            });
+                        }}>Login</span>
+                }
             </div>
         </div>
     )
