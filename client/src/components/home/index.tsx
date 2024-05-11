@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './styles.css'
 import * as netlifyIdentity from 'netlify-identity-widget'
+import Loader from '../loader';
 
 interface Props {
   isAuthenticated: null | string;
@@ -11,6 +12,8 @@ const Home = ({ isAuthenticated, setIsAuthenticated }: Props) => {
   const [description, setDescription] = useState('');
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
+  const [todaysPrompt, setTodaysPrompt] = useState('The sky you see');
+  const [loading, setLoading] = useState(false);
 
   const readFile = (file: any) => {
     return new Promise((resolve, reject) => {
@@ -50,23 +53,34 @@ const Home = ({ isAuthenticated, setIsAuthenticated }: Props) => {
     // formData.append('description', description);
     // console.log(formData)
 
+
     const file = await readFile(uploadFile);
     const fileName = uploadFile.name.split('.').shift();
     const type = uploadFile.type ? uploadFile.type : 'NA';
-    const lastModified = uploadFile.lastModified;
+
+    const currentDateUTC = new Date();
+    const year = currentDateUTC.getUTCFullYear();
+    const month = String(currentDateUTC.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(currentDateUTC.getUTCDate()).padStart(2, '0');
+    const dt = year + month + day;
+    const pattern = /[^a-zA-Z0-9]/g;
+    const user = isAuthenticated.replace(pattern, '');
+
     const metaData = {
       name: fileName,
       type: type,
-      lastModified: new Date(lastModified)
+      description: description || todaysPrompt,
     }
 
     const payload = {
-      fileName: fileName,
+      date: dt,
+      user: user,
       file: file,
       metaData: metaData
     }
 
     try {
+      setLoading(true);
       const response = await fetch('http://localhost:8888/.netlify/functions/test', {
         method: 'POST',
         headers: {
@@ -74,24 +88,31 @@ const Home = ({ isAuthenticated, setIsAuthenticated }: Props) => {
         },
         body: JSON.stringify(payload) // Convert the payload object to a JSON string
       });
-      console.log(response, response.body
-      )
+      
+      console.log(response.status )
     } catch (error) {
       console.error('Error submitting form:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
       <div className='today-prompt'>
-        Today's prompt: The sky you see
+        Today's prompt: {todaysPrompt}
       </div>
       <div className="file-upload-container">
+        {loading && <Loader />}
         <h2 className="upload-title">Upload your masterpiece</h2>
         <div className="input-container">
           <input type="file" id="fileInput" className="custom-file-input" onChange={(e) => {
             const file = e.target.files![0];
             setUploadFile(file);
+            if (err) {
+              setErr('')
+              setMsg('File Uploaded Successfully, please click on submit')
+            }
           }} />
           <label htmlFor="fileInput" className="custom-file-label">Choose File</label>
         </div>
